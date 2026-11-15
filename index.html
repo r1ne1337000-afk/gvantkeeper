@@ -1,1 +1,36 @@
-<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/><title>GvantKeeper</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-title" content="GvantKeeper"/><style>body{margin:0;font-family:-apple-system,sans-serif;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}a{color:#0098ea}</style></head><body><div><h1>GvantKeeper</h1><p>Загружаю полную версию…</p><p><a href="https://github.com/r1ne1337000-afk/gvantkeeper">Репозиторий</a></p></div></body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="GvantKeeper"/>
+<meta name="theme-color" content="#000000"/>
+<title>GvantKeeper</title>
+<style>html,body{margin:0;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}#boot{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px}#boot p{color:#8e8e93;font-size:14px}</style>
+</head>
+<body>
+<div id="boot"><div style="font-size:22px;font-weight:700">GvantKeeper</div><p>Загрузка…</p></div>
+<script>
+(async()=>{
+  try{
+    const urls=[
+      'https://raw.githubusercontent.com/r1ne1337000-afk/gvantkeeper/main/app.html',
+      'https://cdn.jsdelivr.net/gh/r1ne1337000-afk/gvantkeeper@main/app.html'
+    ];
+    let html=null;
+    for(const u of urls){
+      try{
+        const r=await fetch(u,{cache:'no-store'});
+        if(r.ok){html=await r.text();break;}
+      }catch(e){}
+    }
+    if(!html)throw new Error('fail');
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('boot').innerHTML='<div style="font-size:22px;font-weight:700">GvantKeeper</div><p style="color:#ff453a">Не удалось загрузить. Обнови страницу.</p>';
+  }
+})();
+</script>
+</body>
+</html>
