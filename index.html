@@ -1,21 +1,33 @@
 <!DOCTYPE html>
-<html lang="ru"><head>
+<html lang="ru">
+<head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="GvantKeeper"/>
 <meta name="theme-color" content="#000"/>
 <title>GvantKeeper</title>
-<style>html,body{margin:0;height:100%;background:#000;color:#fff;font-family:-apple-system,sans-serif}#b{display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:10px}</style>
-</head><body><div id="b"><b style="font-size:22px">GvantKeeper</b><span style="color:#8e8e93;font-size:14px">Загрузка…</span></div>
+<style>html,body{margin:0;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}#b{display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:12px}</style>
+</head>
+<body>
+<div id="b"><div style="font-size:24px;font-weight:700">GvantKeeper</div><div style="color:#8e8e93;font-size:14px" id="s">Загрузка…</div></div>
 <script>
 (async()=>{
-  const base=location.href.replace(/index\.html.*/,'').replace(/\/?$/,'/');
+  const base=location.pathname.replace(/index\.html?$/,'').replace(/\/?$/,'/');
   try{
-    const parts=await Promise.all([0,1,2].map(i=>fetch(base+'p'+i+'.txt?t='+Date.now()).then(r=>{if(!r.ok)throw 0;return r.text()})));
-    document.open();document.write(parts.join(''));document.close();
+    const parts=[];
+    for(let i=0;i<8;i++){
+      document.getElementById('s').textContent='Загрузка '+(i+1)+'/8…';
+      const r=await fetch(base+'b'+i+'.txt?t='+Date.now());
+      if(!r.ok) throw new Error('part '+i);
+      parts.push(await r.text());
+    }
+    const html=atob(parts.join(''));
+    document.open();document.write(html);document.close();
   }catch(e){
-    document.getElementById('b').innerHTML='<b style="font-size:22px">GvantKeeper</b><span style="color:#ff453a">Ошибка загрузки. Обновите страницу.</span>';
+    document.getElementById('s').innerHTML='Ошибка: '+e.message+'<br><span style="color:#0098ea">Обновите страницу</span>';
   }
 })();
-</script></body></html>
+</script>
+</body>
+</html>
