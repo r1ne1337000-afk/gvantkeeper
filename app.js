@@ -1,0 +1,24 @@
+let data={name:'GvantKeeper',balance:0,ton:0,usdt:0,pin:'',pinSet:false,faceID:true};
+try{const s=localStorage.getItem('gvant_v1');if(s)data={...data,...JSON.parse(s)}}catch(e){}
+let buf='',step=1,first='';
+const unlocked=sessionStorage.getItem('gvant_unlocked')==='1';
+function save(){localStorage.setItem('gvant_v1',JSON.stringify(data))}
+function unlock(){sessionStorage.setItem('gvant_unlocked','1');document.getElementById('lock').classList.add('hidden');document.getElementById('app').style.display='flex';render()}
+function dots(id,n){document.querySelectorAll('#'+id+' .pin-dot').forEach((d,i)=>d.classList.toggle('filled',i<n))}
+function keys(id,fn){const el=document.getElementById(id);if(!el||el.children.length)return;['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(k=>{const d=document.createElement('div');d.className='pin-key'+(k?'':' empty');d.textContent=k;if(k)d.onclick=()=>fn(k);el.appendChild(d)})}
+function onSetup(k){if(k==='⌫'){buf=buf.slice(0,-1);dots('setupDots',buf.length);return}if(buf.length>=4)return;buf+=k;dots('setupDots',buf.length);if(buf.length===4){if(step===1){first=buf;buf='';step=2;setTimeout(()=>{dots('setupDots',0);document.getElementById('setupStatus').textContent='Повторите код';document.getElementById('lockSub').textContent='Подтвердите код'},150)}else{if(buf===first){data.pin=buf;data.pinSet=true;save();document.getElementById('setupStatus').textContent='Сохранено ✓';document.getElementById('setupStatus').classList.add('ok');setTimeout(()=>{document.getElementById('setupView').style.display='none';document.getElementById('faceEnable').style.display='block';document.getElementById('lockSub').textContent='Безопасность'},400)}else{document.getElementById('setupStatus').textContent='Не совпало';step=1;buf='';first='';setTimeout(()=>{dots('setupDots',0);document.getElementById('setupStatus').textContent='Придумайте 4-значный код';document.getElementById('lockSub').textContent='Создайте код-пароль'},500)}}}
+function onPin(k){if(k==='⌫'){buf=buf.slice(0,-1);dots('pinDots',buf.length);return}if(buf.length>=4)return;buf+=k;dots('pinDots',buf.length);if(buf.length===4){if(buf===data.pin){document.getElementById('pinStatus').textContent='Верно';document.getElementById('pinStatus').classList.add('ok');setTimeout(unlock,250)}else{document.getElementById('pinStatus').textContent='Неверный код';buf='';setTimeout(()=>{dots('pinDots',0);document.getElementById('pinStatus').textContent='Введите код-пароль'},400)}}}
+function doFace(){if(!data.faceID){showPin();return}const b=document.getElementById('faceBtn'),s=document.getElementById('faceStatus');b.classList.add('scanning');s.textContent='Сканирование…';setTimeout(()=>{b.classList.remove('scanning');s.textContent='Успешно';s.classList.add('ok');setTimeout(unlock,400)},1200)}
+function showPin(){document.getElementById('faceView').style.display='none';document.getElementById('pinView').style.display='flex';buf='';dots('pinDots',0)}
+function showFace(){document.getElementById('pinView').style.display='none';document.getElementById('faceView').style.display='block'}
+function enableFace(on){data.faceID=!!on;save();unlock();if(on)toast('Face ID включён')}
+function render(){document.getElementById('wName').textContent=data.name;document.getElementById('bal').textContent='$'+(+data.balance||0).toFixed(2);document.getElementById('tokenList').innerHTML=[{s:'T',n:'TON',b:data.ton,c:'#0098ea'},{s:'U',n:'USDT',b:data.usdt,c:'#26a17b'}].map(t=>`<div class="token"><div class="token-icon" style="background:${t.c}22;color:${t.c}">${t.s}</div><div class="token-info"><div class="token-name">${t.n}</div><div class="token-bal">${t.b||0}</div></div></div>`).join('')}
+function openSettings(){document.getElementById('inName').value=data.name;document.getElementById('inBal').value=data.balance;document.getElementById('inTon').value=data.ton;document.getElementById('settings').classList.add('open')}
+function closeSettings(){document.getElementById('settings').classList.remove('open')}
+function saveSettings(){data.name=document.getElementById('inName').value||'GvantKeeper';data.balance=+document.getElementById('inBal').value||0;data.ton=+document.getElementById('inTon').value||0;save();render();closeSettings();toast('Сохранено')}
+function resetPin(){data.pinSet=false;data.pin='';save();sessionStorage.removeItem('gvant_unlocked');location.reload()}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+keys('setupKeys',onSetup);keys('pinKeys',onPin);
+if(unlocked){unlock()}
+else if(!data.pinSet){document.getElementById('setupView').style.display='flex'}
+else{document.getElementById('loginView').style.display='flex';document.getElementById('lockTitle').textContent=data.name;document.getElementById('lockSub').textContent='GvantKeeper';if(!data.faceID)showPin()}
